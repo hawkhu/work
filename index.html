@@ -13,6 +13,15 @@
     <script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.js"></script>
     <link rel="stylesheet" href="https://cdn.rawgit.com/Viglino/ol-ext/master/dist/ol-ext.min.css" />
     <script type="text/javascript" src="https://cdn.rawgit.com/Viglino/ol-ext/master/dist/ol-ext.min.js"></script>
+
+
+
+    <script src="http://webapi.amap.com/maps?v=1.4.0&amp;key=88677a1eeae5f527e0cbf0d0a537de11"></script>
+
+
+
+
+
 </head>
 
 <body class="layui-layout-body ">
@@ -63,110 +72,130 @@
                 <div class="layui-col-md8">
                     <div class="layui-card">
                         <div id="map" class="map">
-                            <button id="toggle_button" tabindex="0" class="menu-button" title="switch expand" onclick="collepse()"><<</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                            <button id="toggle_button" tabindex="0" class="menu-button" title="switch expand"
+                                onclick="collepse()">
+                                <<</button> </div> </div> </div> </div> </div> </div> </div> <script
+                                    src="./lib/layui/layui.all.js">
+                                    </script>
+                                    <script>
+                                        fetch('./data/content.json').then(function (res) {
+                                            return res.json()
+                                        }).then(function (res) {
+                                            console.log(document.getElementById('content'));
+                                            document.getElementById('content').innerHTML = res.articles[0]
+                                                .content
 
-            </div>
-        </div>
-    </div>
-    <script src="./lib/layui/layui.all.js"></script>
-    <script>
-        fetch('./data/content.json').then(function (res) {
-            return res.json()
-        }).then(function (res) {
-            console.log(document.getElementById('content'));
-            document.getElementById('content').innerHTML = res.articles[0].content
+                                        })
 
-        })
+                                        layui.use('element', function () {
+                                            var element = layui.element;
+                                            element.on('nav(demo)', function (data) {
 
-        layui.use('element', function () {
-            var element = layui.element;
-            element.on('nav(demo)', function (data) {
+                                                console.log("data:", data.context.innerHTML);
+                                            });
+                                        });
 
-                console.log("data:", data.context.innerHTML);
-            });
-        });
+                                        var isShow = true;
+                                        var sideWidth = 0;
+                                        var mapWidth = $('.layui-col-md8').width();
 
-        var isShow = true;
-        var sideWidth = 0;
-        var mapWidth = $('.layui-col-md8').width();
-        
-        function collepse() {
-         
-            $('.layui-nav-item span').each(function () {
-                if ($(this).is(':hidden')) {
-                    $(this).show();
-                } else {
-                    $(this).hide();
-                }
-            });
-            //判断isshow的状态
-            if (isShow) {
-                sideWidth = $('.layui-col-md4').width();
-                $('.layui-col-md4').width(0); 
-                $('.layui-col-md4').hide(); 
-                $('.layui-col-md8').width('100%'); 
-                map.setSize([$('.layui-col-md8').width(),mapSize[1]]);
-                $('#toggle_button').html('>>'); 
+                                        function collepse() {
 
-                isShow = false;
-            } else {
-                $('.layui-col-md4').width(sideWidth); 
-                $('.layui-col-md8').width(mapWidth); 
-                $('.layui-col-md4').show(); 
-                map.setSize(mapSize);
-                $('#toggle_button').html('<<'); 
-                isShow = true;
-            }
-        }
-        
-        var raster = new ol.layer.Tile({
-            source: new ol.source.XYZ({
-                url: "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}"
-            })
-        });
-        var source = new ol.source.Vector({
-            wrapX: false,
-            format: new ol.format.GeoJSON(),
-            url: "./data/2010_censustract_LA_3857.geojson"
-        });
-        var fill = new ol.style.Fill({
-            color: 'rgba(205,233,247,0.5)'
-        });
-        var stroke = new ol.style.Stroke({
-            color: '#AAAAAA',
-            width: 1
-        });
-        var vector = new ol.layer.Vector({
-            source: source,
-            style: [
-                new ol.style.Style({
-                    fill: fill,
-                    stroke: stroke
-                })
-            ]
-        });
-        var map = new ol.Map({
-            layers: [raster, vector],
-            target: 'map',
-            view: new ol.View({
-                center: ol.proj.fromLonLat([-118.148, 34.357]),
-                zoom: 9,
-                projection: "EPSG:3857",
+                                            $('.layui-nav-item span').each(function () {
+                                                if ($(this).is(':hidden')) {
+                                                    $(this).show();
+                                                } else {
+                                                    $(this).hide();
+                                                }
+                                            });
+                                            //判断isshow的状态
+                                            if (isShow) {
+                                                sideWidth = $('.layui-col-md4').width();
+                                                $('.layui-col-md4').width(0);
+                                                $('.layui-col-md4').hide();
+                                                $('.layui-col-md8').width('100%');
+                                                map.setSize([$('.layui-col-md8').width(), mapSize[1]]);
+                                                $('#toggle_button').html('>>');
 
-            })
-        });
+                                                isShow = false;
+                                            } else {
+                                                $('.layui-col-md4').width(sideWidth);
+                                                $('.layui-col-md8').width(mapWidth);
+                                                $('.layui-col-md4').show();
+                                                map.setSize(mapSize);
+                                                $('#toggle_button').html('<<');
+                                                isShow = true;
+                                            }
+                                        }
 
-        var mapSize = map.getSize();
+                                        var raster = new ol.layer.Tile({
+                                            source: new ol.source.XYZ({
+                                                url: "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}"
+                                            })
+                                        });
+                                        var source = new ol.source.Vector({
+                                            wrapX: false,
+                                            format: new ol.format.GeoJSON(),
+                                            url: "./data/2010_censustract_LA_3857.geojson"
+                                        });
+                                        var fill = new ol.style.Fill({
+                                            color: 'rgba(205,233,247,0.5)'
+                                        });
+                                        var stroke = new ol.style.Stroke({
+                                            color: '#AAAAAA',
+                                            width: 1
+                                        });
+                                        var vector = new ol.layer.Vector({
+                                            source: source,
+                                            style: [
+                                                new ol.style.Style({
+                                                    fill: fill,
+                                                    stroke: stroke
+                                                })
+                                            ]
+                                        });
+                                        var map = new ol.Map({
+                                            layers: [raster, vector],
+                                            target: 'map',
+                                            view: new ol.View({
+                                                center: ol.proj.fromLonLat([-118.148, 34.357]),
+                                                zoom: 12,
+                                                projection: "EPSG:3857",
+
+                                            })
+                                        });
+
+                                        var mapSize = map.getSize();
+
+                                        
+                                        AMap.plugin('AMap.Geolocation', function () {
+                                            var geolocation = new AMap.Geolocation({
+                                                enableHighAccuracy: true,
+                                                timeout: 10000,
+                                                buttonOffset: new AMap.Pixel(10, 20),
+                                                zoomToAccuracy: true,
+                                                buttonPosition: 'RB'
+                                            })
+
+                                            geolocation.getCurrentPosition()
+                                            AMap.event.addListener(geolocation, 'complete', onComplete)
+                                            AMap.event.addListener(geolocation, 'error', onError)
+
+                                            function onComplete(data) {
+                                                console.log(data.position);
+                                                map.getView().setCenter(ol.proj.fromLonLat([data.position.lng, data.position.lat]))
+                                            }
+                                            function onError(data) {
+                                            }
+                                        })
+                                        
 
 
-        function loadContent() {
-            console.log("this");
-        }
-    </script>
+
+                                        function loadContent() {
+                                            console.log("this");
+                                        }
+                                    </script>
 </body>
 
 </html>
