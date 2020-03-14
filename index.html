@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>Overview of Affordable Housing Situation</title>
+    <link rel="stylesheet" href="./lib/layui/css/layui.css">
+    <link rel="stylesheet" href="./lib/style.css">
+    <script src="./lib/ol/ol.js"></script>
+    <link rel="stylesheet" href="./lib/ol/ol.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.4.4/proj4.js"></script>
+    <script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.js"></script>
+    <link rel="stylesheet" href="https://cdn.rawgit.com/Viglino/ol-ext/master/dist/ol-ext.min.css" />
+    <script type="text/javascript" src="https://cdn.rawgit.com/Viglino/ol-ext/master/dist/ol-ext.min.js"></script>
+</head>
+
+<body class="layui-layout-body ">
+    <div class="layui-layout layui-layout-admin">
+        <div class="layui-header layui-bg-cyan">
+            <div class="textArea" style="color: rgb(255, 255, 255); width: 1230px;padding-top: 10px;">
+                <h1 class="title">Overview of Affordable Housing Situation From 2020 to 2025</h1>
+            </div>
+            <ul class="layui-nav layui-layout-right">
+                <li class="layui-nav-item">
+                    <a href="javascript:;">
+                        <img src="https://www.arcgis.com/sharing/rest/content/items/756c49ef7d8940aab28b945b20da343f/resources/sm_series_logo__1562595559854.png"
+                            class="layui-nav-img">
+                        USER
+                    </a>
+                    <dl class="layui-nav-child">
+                        <dd><a href="">Profile</a></dd>
+                        <dd><a href="">Security Settings</a></dd>
+                    </dl>
+                </li>
+                <li class="layui-nav-item"><a href="">LogOut</a></li>
+            </ul>
+
+            <ul class="layui-nav  layui-bg-cyan" lay-filter="demo">
+                <li class="layui-nav-item layui-this"><a href="">Area Description</a></li>
+                <li class="layui-nav-item"><a href="javascript:void(0);" onclick="loadContent(2020)">2020</a></li>
+                <li class="layui-nav-item"><a href="javascript:void(0);" onclick="loadContent(2021)">2021</a></li>
+                <li class="layui-nav-item"> <a href="javascript:void(0);" onclick="loadContent(2022)">2022</a></li>
+                <li class="layui-nav-item"> <a href="javascript:void(0);" onclick="loadContent(2023)">2023</a></li>
+                <li class="layui-nav-item"> <a href="javascript:void(0);" onclick="loadContent(2024)">2024</a></li>
+                <li class="layui-nav-item"> <a href="javascript:void(0);" onclick="loadContent(2025)">2025</a></li>
+                <li class="layui-nav-item"> <a href="javascript:void(0);"
+                        onclick="loadContent('Opportunity')">Opportunity Zone</a>
+                </li>
+            </ul>
+            <div class="layui-row layui-col-space5">
+                <div class="layui-col-md4">
+                    <div class="layui-card">
+                        <div class="layui-card-header">
+                            <h1>Area Description:</h1>
+                        </div>
+                        <div class="layui-card-body" id="content"
+                            style="color: rgb(0, 0, 0);font-family: 'Times New Roman', Times, serif;padding-left: 20px;">
+
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-col-md8">
+                    <div class="layui-card">
+                        <div id="map" class="map">
+                            <button id="toggle_button" tabindex="0" class="menu-button" title="switch expand" onclick="collepse()"><<</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <script src="./lib/layui/layui.all.js"></script>
+    <script>
+        fetch('./data/content.json').then(function (res) {
+            return res.json()
+        }).then(function (res) {
+            console.log(document.getElementById('content'));
+            document.getElementById('content').innerHTML = res.articles[0].content
+
+        })
+
+        layui.use('element', function () {
+            var element = layui.element;
+            element.on('nav(demo)', function (data) {
+
+                console.log("data:", data.context.innerHTML);
+            });
+        });
+
+        var isShow = true;
+        var sideWidth = 0;
+        var mapWidth = $('.layui-col-md8').width();
+        
+        function collepse() {
+         
+            $('.layui-nav-item span').each(function () {
+                if ($(this).is(':hidden')) {
+                    $(this).show();
+                } else {
+                    $(this).hide();
+                }
+            });
+            //判断isshow的状态
+            if (isShow) {
+                sideWidth = $('.layui-col-md4').width();
+                $('.layui-col-md4').width(0); 
+                $('.layui-col-md4').hide(); 
+                $('.layui-col-md8').width('100%'); 
+                map.setSize([$('.layui-col-md8').width(),mapSize[1]]);
+                $('#toggle_button').html('>>'); 
+
+                isShow = false;
+            } else {
+                $('.layui-col-md4').width(sideWidth); 
+                $('.layui-col-md8').width(mapWidth); 
+                $('.layui-col-md4').show(); 
+                map.setSize(mapSize);
+                $('#toggle_button').html('<<'); 
+                isShow = true;
+            }
+        }
+        
+        var raster = new ol.layer.Tile({
+            source: new ol.source.XYZ({
+                url: "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}"
+            })
+        });
+        var source = new ol.source.Vector({
+            wrapX: false,
+            format: new ol.format.GeoJSON(),
+            url: "./data/2010_censustract_LA_3857.geojson"
+        });
+        var fill = new ol.style.Fill({
+            color: 'rgba(205,233,247,0.5)'
+        });
+        var stroke = new ol.style.Stroke({
+            color: '#AAAAAA',
+            width: 1
+        });
+        var vector = new ol.layer.Vector({
+            source: source,
+            style: [
+                new ol.style.Style({
+                    fill: fill,
+                    stroke: stroke
+                })
+            ]
+        });
+        var map = new ol.Map({
+            layers: [raster, vector],
+            target: 'map',
+            view: new ol.View({
+                center: ol.proj.fromLonLat([-118.148, 34.357]),
+                zoom: 9,
+                projection: "EPSG:3857",
+
+            })
+        });
+
+        var mapSize = map.getSize();
+
+
+        function loadContent() {
+            console.log("this");
+        }
+    </script>
+</body>
+
+</html>
