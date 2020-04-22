@@ -173,7 +173,10 @@
             style: [
                 new ol.style.Style({
                     fill: fillES,
-                    stroke: stroke
+                    stroke: new ol.style.Stroke({
+                        color: '#000000',
+                        width: 2
+                    })
                 })
             ]
         });
@@ -187,7 +190,10 @@
             style: [
                 new ol.style.Style({
                     fill: fillES,
-                    stroke: stroke
+                    stroke: new ol.style.Stroke({
+                        color: '#000000',
+                        width: 2
+                    })
                 })
             ]
         });
@@ -285,8 +291,8 @@
         });
 
         var map = new ol.Map({
-            layers: [raster, vector, backVector, LAVector, southVector,
-                eastVector, projectVector, opVector, recommVector
+            layers: [raster, vector, backVector, LAVector, opVector,recommVector, southVector,eastVector, 
+                 projectVector
             ],
             target: 'map',
             view: new ol.View({
@@ -300,7 +306,9 @@
         var mapSize = map.getSize();
 
         function loadContent(year) {
-            opVector.setVisible(false)
+            opVector.setVisible(false);
+            recommVector.setVisible(false)
+
             backVector.setVisible(true),
                 southVector.setVisible(true),
                 eastVector.setVisible(true),
