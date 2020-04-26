@@ -39,14 +39,14 @@
             <ul class="layui-nav  layui-bg-cyan" lay-filter="demo">
                 <li class="layui-nav-item layui-this"> <a href="javascript:void(0);"
                         onclick="loadContent('Area Description')">Area Description</a></li>
-                <li class="layui-nav-item"> <a href="javascript:void(0);"
-                        onclick="loadContent('Opportunity Zone')">Opportunity Zone</a></li>
                 <li class="layui-nav-item"><a href="javascript:void(0);" onclick="loadContent(2020)">2020</a></li>
                 <li class="layui-nav-item"><a href="javascript:void(0);" onclick="loadContent(2021)">2021</a></li>
                 <li class="layui-nav-item"> <a href="javascript:void(0);" onclick="loadContent(2022)">2022</a></li>
                 <li class="layui-nav-item"> <a href="javascript:void(0);" onclick="loadContent(2023)">2023</a></li>
                 <li class="layui-nav-item"> <a href="javascript:void(0);" onclick="loadContent(2024)">2024</a></li>
                 <li class="layui-nav-item"> <a href="javascript:void(0);" onclick="loadContent(2025)">2025</a></li>
+                <li class="layui-nav-item"> <a href="javascript:void(0);"
+                        onclick="loadContent('Opportunity Zone')">Opportunity Zone</a></li>
                 <li class="layui-nav-item"> <a href="javascript:void(0);"
                         onclick="loadContent('Recommondation')">Recommondation</a></li>
             </ul>
@@ -65,276 +65,304 @@
                         <div id="map" class="map">
                             <button id="toggle_button" tabindex="0" class="menu-button" title="switch expand"
                                 onclick="collepse()">
-                                << </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    </div>
-    <script src="./lib/layui/layui.all.js">
-    </script>
-    <script>
+                                << </button> </div> </div> </div> </div> </div> </div> </div> <script
+                                    src="./lib/layui/layui.all.js">
+                                    </script>
+                                    <script>
+                                        layui.use('element', function () {
+                                            var element = layui.element;
+                                            element.on('nav(demo)', function (data) {});
+                                        });
 
-        layui.use('element', function () {
-            var element = layui.element;
-            element.on('nav(demo)', function (data) {
+                                        var isShow = true;
+                                        var sideWidth = 0;
+                                        var mapWidth = $('.layui-col-md8').width();
 
-                // console.log("data:", data.context.innerHTML);
-            });
-        });
+                                        function collepse() {
 
-        var isShow = true;
-        var sideWidth = 0;
-        var mapWidth = $('.layui-col-md8').width();
+                                            $('.layui-nav-item span').each(function () {
+                                                if ($(this).is(':hidden')) {
+                                                    $(this).show();
+                                                } else {
+                                                    $(this).hide();
+                                                }
+                                            });
+                                            //判断isshow的状态
+                                            if (isShow) {
+                                                sideWidth = $('.layui-col-md4').width();
+                                                $('.layui-col-md4').width(0);
+                                                $('.layui-col-md4').hide();
+                                                $('.layui-col-md8').width('100%');
+                                                map.setSize([$('.layui-col-md8').width(), mapSize[1]]);
+                                                $('#toggle_button').html('>>');
 
-        function collepse() {
+                                                isShow = false;
+                                            } else {
+                                                $('.layui-col-md4').width(sideWidth);
+                                                $('.layui-col-md8').width(mapWidth);
+                                                $('.layui-col-md4').show();
+                                                map.setSize(mapSize);
+                                                $('#toggle_button').html('<<');
+                                                isShow = true;
+                                            }
+                                        }
 
-            $('.layui-nav-item span').each(function () {
-                if ($(this).is(':hidden')) {
-                    $(this).show();
-                } else {
-                    $(this).hide();
-                }
-            });
-            //判断isshow的状态
-            if (isShow) {
-                sideWidth = $('.layui-col-md4').width();
-                $('.layui-col-md4').width(0);
-                $('.layui-col-md4').hide();
-                $('.layui-col-md8').width('100%');
-                map.setSize([$('.layui-col-md8').width(), mapSize[1]]);
-                $('#toggle_button').html('>>');
+                                        var yr_exp = 2019;
+                                        var raster = new ol.layer.Tile({
+                                            source: new ol.source.XYZ({
+                                                url: "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}"
+                                            })
+                                        });
+                                        var source = new ol.source.Vector({
+                                            wrapX: false,
+                                            format: new ol.format.GeoJSON(),
+                                            url: "./data/2010_censustract_LA_3857.geojson"
+                                        });
+                                        var fill = new ol.style.Fill({
+                                            color: 'rgba(205,233,247,0.5)'
+                                        });
+                                        var fillES = new ol.style.Fill({
+                                            color: 'rgba(233,255,190,0.5)'
+                                        });
+                                        var stroke = new ol.style.Stroke({
+                                            color: '#AAAAAA',
+                                            width: 1
+                                        });
+                                        var vector = new ol.layer.Vector({
+                                            source: source,
+                                            style: [
+                                                new ol.style.Style({
+                                                    fill: fill,
+                                                    stroke: stroke
+                                                })
+                                            ]
+                                        });
 
-                isShow = false;
-            } else {
-                $('.layui-col-md4').width(sideWidth);
-                $('.layui-col-md8').width(mapWidth);
-                $('.layui-col-md4').show();
-                map.setSize(mapSize);
-                $('#toggle_button').html('<<');
-                isShow = true;
-            }
-        }
+                                        var backVector = new ol.layer.Vector({
+                                            visible: false,
+                                            source: new ol.source.Vector({
+                                                wrapX: false,
+                                                format: new ol.format.GeoJSON(),
+                                                url: "./data/CA_County_Background.geojson"
+                                            }),
+                                            style: [
+                                                new ol.style.Style({
+                                                    fill: fill,
+                                                    stroke: stroke
+                                                })
+                                            ]
+                                        });
+                                        var southVector2 = new ol.layer.Vector({
+                                            visible: false,
+                                            source: new ol.source.Vector({
+                                                wrapX: false,
+                                                format: new ol.format.GeoJSON(),
+                                                url: "./data/Greater_South_LA.geojson"
+                                            }),
+                                            style: [
+                                                new ol.style.Style({
+                                                    fill: fillES,
+                                                    stroke: new ol.style.Stroke({
+                                                        color: '#000000',
+                                                        width: 2
+                                                    })
+                                                })
+                                            ]
+                                        });
+                                        var eastVector2 = new ol.layer.Vector({
+                                            visible: false,
+                                            source: new ol.source.Vector({
+                                                wrapX: false,
+                                                format: new ol.format.GeoJSON(),
+                                                url: "./data/Greater_East_LA.geojson"
+                                            }),
+                                            style: [
+                                                new ol.style.Style({
+                                                    fill: fillES,
+                                                    stroke: new ol.style.Stroke({
+                                                        color: '#000000',
+                                                        width: 2
+                                                    })
+                                                })
+                                            ]
+                                        });
 
-        var yr_exp = 2019;
-        var raster = new ol.layer.Tile({
-            source: new ol.source.XYZ({
-                url: "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}"
-            })
-        });
-        var source = new ol.source.Vector({
-            wrapX: false,
-            format: new ol.format.GeoJSON(),
-            url: "./data/2010_censustract_LA_3857.geojson"
-        });
-        var fill = new ol.style.Fill({
-            color: 'rgba(205,233,247,0.5)'
-        });
-        var fillES = new ol.style.Fill({
-            color: 'rgba(233,255,190,0.5)'
-        });
-        var stroke = new ol.style.Stroke({
-            color: '#AAAAAA',
-            width: 1
-        });
-        var vector = new ol.layer.Vector({
-            source: source,
-            style: [
-                new ol.style.Style({
-                    fill: fill,
-                    stroke: stroke
-                })
-            ]
-        });
+                                        var southVector = new ol.layer.Vector({
+                                            visible: false,
+                                            source: new ol.source.Vector({
+                                                wrapX: false,
+                                                format: new ol.format.GeoJSON(),
+                                                url: "./data/Greater_South_LA.geojson"
+                                            }),
+                                            style: [
+                                                new ol.style.Style({
+                                                    fill: fillES,
+                                                    stroke: stroke
+                                                })
+                                            ]
+                                        });
+                                        var eastVector = new ol.layer.Vector({
+                                            visible: false,
+                                            source: new ol.source.Vector({
+                                                wrapX: false,
+                                                format: new ol.format.GeoJSON(),
+                                                url: "./data/Greater_East_LA.geojson"
+                                            }),
+                                            style: [
+                                                new ol.style.Style({
+                                                    fill: fillES,
+                                                    stroke: stroke
+                                                })
+                                            ]
+                                        });
 
-        var backVector = new ol.layer.Vector({
-            visible: false,
-            source: new ol.source.Vector({
-                wrapX: false,
-                format: new ol.format.GeoJSON(),
-                url: "./data/CA_County_Background.geojson"
-            }),
-            style: [
-                new ol.style.Style({
-                    fill: fill,
-                    stroke: stroke
-                })
-            ]
-        });
-        var southVector = new ol.layer.Vector({
-            visible: false,
-            source: new ol.source.Vector({
-                wrapX: false,
-                format: new ol.format.GeoJSON(),
-                url: "./data/Greater_South_LA.geojson"
-            }),
-            style: [
-                new ol.style.Style({
-                    fill: fillES,
-                    stroke: new ol.style.Stroke({
-                        color: '#000000',
-                        width: 2
-                    })
-                })
-            ]
-        });
-        var eastVector = new ol.layer.Vector({
-            visible: false,
-            source: new ol.source.Vector({
-                wrapX: false,
-                format: new ol.format.GeoJSON(),
-                url: "./data/Greater_East_LA.geojson"
-            }),
-            style: [
-                new ol.style.Style({
-                    fill: fillES,
-                    stroke: new ol.style.Stroke({
-                        color: '#000000',
-                        width: 2
-                    })
-                })
-            ]
-        });
-        var LAVector = new ol.layer.Vector({
-            visible: false,
-            source: new ol.source.Vector({
-                wrapX: false,
-                format: new ol.format.GeoJSON(),
-                url: "./data/LA_County_Subdivision_Background.geojson"
-            }),
-            style: [
-                new ol.style.Style({
-                    fill: fill,
-                    stroke: stroke
-                })
-            ]
-        });
+                                        var LAVector = new ol.layer.Vector({
+                                            visible: false,
+                                            source: new ol.source.Vector({
+                                                wrapX: false,
+                                                format: new ol.format.GeoJSON(),
+                                                url: "./data/LA_County_Subdivision_Background.geojson"
+                                            }),
+                                            style: [
+                                                new ol.style.Style({
+                                                    fill: fill,
+                                                    stroke: stroke
+                                                })
+                                            ]
+                                        });
 
-        var opVector = new ol.layer.Vector({
-            visible: false,
-            source: new ol.source.Vector({
-                wrapX: false,
-                format: new ol.format.GeoJSON(),
-                url: "./data/oppo.geojson"
-            }),
-            style: [
-                new ol.style.Style({
-                    fill: new ol.style.Fill({
-                        color: 'rgba(205,128,128,0.5)'
-                    }),
-                    stroke: stroke
-                })
-            ]
-        });
-        var projectVector = new ol.layer.Vector({
-            visible: false,
-            source: new ol.source.Vector({
-                wrapX: false,
-                format: new ol.format.GeoJSON(),
-                url: "./data/projects.geojson"
-            }),
-            style: function (f) {
-                let radiusExp = 2;
-                let colorExp = '#FDAA01';
-                let fexp = parseInt(f.get('yr_exp'));
-                if (fexp >= 2020 && fexp <= yr_exp) {
-                    radiusExp = 5;
-                    colorExp = '#FF0000';
-                }
-                var projectStyle = new ol.style.Style({
-                    image: new ol.style.Circle({
-                        radius: radiusExp,
-                        fill: new ol.style.Fill({
-                            color: colorExp
-                        })
-                    })
-                })
-                return projectStyle;
-            }
-        });
+                                        var opVector = new ol.layer.Vector({
+                                            visible: false,
+                                            source: new ol.source.Vector({
+                                                wrapX: false,
+                                                format: new ol.format.GeoJSON(),
+                                                url: "./data/oppo.geojson"
+                                            }),
+                                            style: [
+                                                new ol.style.Style({
+                                                    fill: new ol.style.Fill({
+                                                        color: 'rgba(205,128,128,0.5)'
+                                                    }),
+                                                    stroke: stroke
+                                                })
+                                            ]
+                                        });
 
-        var recommVector = new ol.layer.Vector({
-            visible: false,
-            source: new ol.source.Vector({
-                wrapX: false,
-                format: new ol.format.GeoJSON(),
-                url: "./data/recommendation.geojson"
-            }),
-            style: function (f) {
-                var fact = parseFloat(f.get('recom_fact'));
-                if (fact > 0 && fact <= 0.1)
-                    color = "#FFF2FF"
-                else
-                    if (fact > 0.1 && fact <= 0.25)
+                                        var projectVector = new ol.layer.Vector({
+                                            visible: false,
+                                            source: new ol.source.Vector({
+                                                wrapX: false,
+                                                format: new ol.format.GeoJSON(),
+                                                url: "./data/projects.geojson"
+                                            }),
+                                            style: function (f) {
+                                                let radiusExp = 2;
+                                                let colorExp = '#FDAA01';
+                                                let fexp = parseInt(f.get('yr_exp'));
+                                                if (fexp >= 2020 && fexp <= yr_exp) {
+                                                    radiusExp = 5;
+                                                    colorExp = '#FF0000';
+                                                }
+                                                var projectStyle = new ol.style.Style({
+                                                    image: new ol.style.Circle({
+                                                        radius: radiusExp,
+                                                        fill: new ol.style.Fill({
+                                                            color: colorExp
+                                                        })
+                                                    })
+                                                })
+                                                return projectStyle;
+                                            }
+                                        });
 
-                        color = "#C28C7C"
-                    else if (fact > 0.25 && fact <= 0.5)
+                                        var recommVector = new ol.layer.Vector({
+                                            visible: false,
+                                            source: new ol.source.Vector({
+                                                wrapX: false,
+                                                format: new ol.format.GeoJSON(),
+                                                url: "./data/recommendation.geojson"
+                                            }),
+                                            style: function (f) {
+                                                var fact = parseFloat(f.get('recom_fact'));
+                                                if (fact > 0 && fact <= 0.1)
+                                                    color = "#FFF2FF"
+                                                else
+                                                if (fact > 0.1 && fact <= 0.25)
 
-                        color = "#F2CE85"
-                    else if (fact > 0.5 && fact <= 0.75)
-                        color = "#F2EEA2"
-                    else
-                        if (fact > 0.75 && fact <= 1)
-                            color = "#709959"
-                        else
-                            color = '#FFFFFF'
-                var recommStyle = new ol.style.Style({
-                    fill: new ol.style.Fill({
-                        color: color
-                    }),
-                    stroke: stroke
-                })
-                return recommStyle;
-            }
-        });
+                                                    color = "#C28C7C"
+                                                else if (fact > 0.25 && fact <= 0.5)
 
-        var map = new ol.Map({
-            layers: [raster, vector, backVector, LAVector, opVector,recommVector, southVector,eastVector, 
-                 projectVector
-            ],
-            target: 'map',
-            view: new ol.View({
-                center: ol.proj.fromLonLat([-118.148, 34.357]),
-                zoom: 9,
-                projection: "EPSG:3857",
+                                                    color = "#F2CE85"
+                                                else if (fact > 0.5 && fact <= 0.75)
+                                                    color = "#F2EEA2"
+                                                else
+                                                if (fact > 0.75 && fact <= 1)
+                                                    color = "#709959"
+                                                else
+                                                    color = '#FFFFFF'
+                                                var recommStyle = new ol.style.Style({
+                                                    fill: new ol.style.Fill({
+                                                        color: color
+                                                    }),
+                                                    stroke: stroke
+                                                })
+                                                return recommStyle;
+                                            }
+                                        });
 
-            })
-        });
+                                        var map = new ol.Map({
+                                            layers: [raster, vector, backVector, LAVector, southVector,
+                                                eastVector, projectVector, opVector, recommVector,
+                                                southVector2,
+                                                eastVector2
+                                            ],
+                                            target: 'map',
+                                            view: new ol.View({
+                                                center: ol.proj.fromLonLat([-118.148, 34.357]),
+                                                zoom: 9,
+                                                projection: "EPSG:3857",
 
-        var mapSize = map.getSize();
+                                            })
+                                        });
 
-        function loadContent(year) {
-            opVector.setVisible(false);
-            recommVector.setVisible(false)
+                                        var mapSize = map.getSize();
 
-            backVector.setVisible(true),
-                southVector.setVisible(true),
-                eastVector.setVisible(true),
-                LAVector.setVisible(true);
-            yr_exp = year;
-            projectVector.setVisible(true);
-            projectVector.changed()
-            if (year == 'Opportunity Zone') {
-                opVector.setVisible(true)
-            }
-            if (year == 'Recommondation') {
-                recommVector.setVisible(true)
-            }
+                                        function loadContent(year) {
+                                            opVector.setVisible(false)
+                                            recommVector.setVisible(false)
+                                            southVector2.setVisible(false);
+                                                eastVector2.setVisible(false)
+                                            backVector.setVisible(true);
+                                            southVector.setVisible(true);
+                                            eastVector.setVisible(true);
+                                            LAVector.setVisible(true);
+                                            yr_exp = year;
+                                            projectVector.setVisible(true);
+                                            projectVector.changed()
 
-            $.ajax({
-                type: "get",
-                url: "./doc/" + year + ".html",
-                async: true,
-                success: function (data) {
-                    $('#content').html(data)
-                }
-            });
+                                            if (year == 'Opportunity Zone') {
+                                                opVector.setVisible(true);
+                                                southVector2.setVisible(true);
+                                                eastVector2.setVisible(true)
+                                            }
+                                            if (year == 'Recommondation') {
+                                                recommVector.setVisible(true);
+                                                southVector2.setVisible(true);
+                                                eastVector2.setVisible(true)
+                                            }
 
-        }
-        loadContent('Area Description')
-    </script>
+                                            $.ajax({
+                                                type: "get",
+                                                url: "./doc/" + year + ".html",
+                                                async: true,
+                                                success: function (data) {
+                                                    $('#content').html(data)
+                                                }
+                                            });
+
+                                        }
+                                        loadContent('Area Description')
+                                    </script>
 </body>
 
 </html>
